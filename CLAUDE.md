@@ -23,10 +23,13 @@ public repo `freeStrava`, GitHub Pages from `main` → `/docs`). Demo: `#/demo`.
 - **Phones: Strava app links.** strava.com's apple-app-site-association claims
   `/activities/*`, `/athlete/*`, `/dashboard` etc., and Android app links claim
   all URLs, so tapping a strava.com link from our site opens the Strava app
-  (which can't export). So on phones: "Open Strava" goes to `/login` (not
-  claimed), the user copies the activity URL → our **Paste link** button
-  (clipboard API) → **Copy download link** → user pastes it into the address
-  bar (typed/pasted URLs never trigger the app). Computers: open
+  (which can't export). Even unclaimed `/login` redirects an already
+  logged-in user to `/dashboard` → app (seen on a real iPhone). So on phones
+  **never render a tappable strava.com link**: "Copy Strava address" copies
+  `/athlete/training`, the user pastes it into the address bar (typed/pasted
+  URLs never trigger the app), copies the activity URL → **Paste link** →
+  **Copy download link** → pastes that into the address bar. iPads/iPhones
+  with a Mac user agent are detected via touch support. Computers: open
   `/athlete/training`, then ⋯ → Export Original, or paste → direct download link.
   A page can't read other tabs' URLs or the Downloads folder; desktop
   Chrome/Edge get `showOpenFilePicker({startIn: "downloads"})`.

@@ -185,10 +185,14 @@ async function saveSettings(e) {
 
 // ---- step 1: getting the file from Strava ----
 //
-// Phones: strava.com/activities/* and /athlete/* are "universal links" /
-// Android app links, so tapping them opens the Strava app (which can't
-// export). /login opens in the browser, and URLs pasted into the address
-// bar never trigger the app — hence "Copy download link" on phones.
+// Phones: tapping ANY strava.com link from our site can open the Strava app
+// (which can't export): /activities/*, /athlete/*, /dashboard are iOS
+// universal links, Android claims all URLs, and even unclaimed /login
+// redirects a logged-in user to /dashboard. Addresses typed or pasted into
+// the address bar never open the app, so on phones we only ever copy
+// strava.com addresses for the user to paste.
+
+const STRAVA_ACTIVITIES = "https://www.strava.com/athlete/training";
 
 const DEVICE_KEY = "freestrava.device";
 
@@ -198,7 +202,10 @@ function detectPhone() {
     if (saved) return saved === "phone";
   } catch { /* ignore */ }
   const ua = navigator.userAgent;
-  return /Android|iPhone|iPad|iPod/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  // iPads (and iPhones set to "Request Desktop Website") report a Mac user
+  // agent; no real Mac has a touch screen, so touch support gives them away.
+  const touch = navigator.maxTouchPoints > 0 || matchMedia("(pointer: coarse)").matches;
+  return /Android|iPhone|iPad|iPod/i.test(ua) || (/Macintosh/.test(ua) && touch);
 }
 
 function setDeviceMode(phone, remember = false) {
@@ -242,17 +249,19 @@ async function pasteLink() {
 }
 
 async function copyDownloadLink() {
-  const url = $("#download-url").value;
-  try {
-    await navigator.clipboard.writeText(url);
-    toast(t("toast.copied"));
-  } catch {
-    const input = $("#download-url");
-    input.focus();
-    input.select();
-    toast(t("toast.copyManual"));
-  }
+  const input = $("#download-url");
+  if (await copyText(input.value)) toast(t("toast.copied"));
+  else { input.focus(); input.select(); toast(t("toast.copyManual")); }
   state.awayForFile = true;
+}
+
+async function copyStravaAddress() {
+  if (await copyText(STRAVA_ACTIVITIES)) toast(t("toast.stravaCopied"));
+  else prompt(t("toast.copyManual"), STRAVA_ACTIVITIES);
+}
+
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); return true; } catch { return false; }
 }
 
 /** Desktop Chrome/Edge can open the picker straight in Downloads. */
@@ -787,6 +796,7 @@ function wireHandlers() {
   $("#strava-link").addEventListener("input", (e) => setStravaLink(e.target.value));
   $("#paste-link").addEventListener("click", pasteLink);
   $("#copy-download").addEventListener("click", copyDownloadLink);
+  $("#copy-strava").addEventListener("click", copyStravaAddress);
   $("#download-url").addEventListener("focus", (e) => e.target.select());
   $$("[data-strava-open]").forEach((a) => a.addEventListener("click", () => (state.awayForFile = true)));
   $("#strava-download").addEventListener("click", () => (state.awayForFile = true));
