@@ -1,5 +1,6 @@
 // Chart rendering (Chart.js, loaded as a global from the CDN in index.html).
 // Colors come from CSS custom properties so light/dark mode stay in one place.
+import { t, locale, num } from "./i18n.js";
 
 const charts = new Map();
 
@@ -46,10 +47,10 @@ const SERIES = [1, 2, 3, 4, 5, 6, 7, 8].map((n) => `--series-${n}`);
 export const seriesColor = (i) => css(SERIES[i]);
 
 function shortDate(d) {
-  return new Date(d + "T00:00:00Z").toLocaleDateString(undefined, { day: "numeric", month: "short", timeZone: "UTC" });
+  return new Date(d + "T00:00:00Z").toLocaleDateString(locale(), { day: "numeric", month: "short", timeZone: "UTC" });
 }
 function longDate(d) {
-  return new Date(d + "T00:00:00Z").toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+  return new Date(d + "T00:00:00Z").toLocaleDateString(locale(), { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
 }
 
 /** Fitness (CTL) and fatigue (ATL) lines. */
@@ -68,7 +69,7 @@ export function drawFitness(id, series) {
     type: "line",
     data: {
       labels: series.map((p) => p.day),
-      datasets: [line("Fitness", "ctl", seriesColor(0)), line("Fatigue", "atl", seriesColor(1))],
+      datasets: [line(t("chart.fitness"), "ctl", seriesColor(0)), line(t("chart.fatigue"), "atl", seriesColor(1))],
     },
     options: opts,
   });
@@ -83,14 +84,14 @@ export function drawForm(id, series) {
   opts.scales.x.ticks.callback = (_, i) => shortDate(series[i].day);
   opts.plugins.tooltip.callbacks = {
     title: (items) => longDate(series[items[0].dataIndex].day),
-    label: (c) => ` Form: ${Math.round(c.parsed.y)}`,
+    label: (c) => ` ${t("chart.form")}: ${Math.round(c.parsed.y)}`,
   };
   draw(id, {
     type: "line",
     data: {
       labels: series.map((p) => p.day),
       datasets: [{
-        label: "Form",
+        label: t("chart.form"),
         data: series.map((p) => p.tsb),
         borderColor: css("--text-secondary"),
         borderWidth: 1.5,
@@ -110,10 +111,10 @@ export function drawWeeklyLoad(id, weeks) {
   opts.scales.x.stacked = false;
   opts.scales.x.ticks.callback = (_, i) => shortDate(weeks[i].week);
   opts.plugins.tooltip.callbacks = {
-    title: (items) => "Week of " + longDate(weeks[items[0].dataIndex].week),
+    title: (items) => t("chart.weekOf", { d: longDate(weeks[items[0].dataIndex].week) }),
     label: (c) => c.datasetIndex === 1
-      ? ` Load: ${Math.round(c.parsed.y)}`
-      : ` Typical range: ${Math.round(weeks[c.dataIndex].low)}–${Math.round(weeks[c.dataIndex].high)}`,
+      ? ` ${t("chart.load")}: ${Math.round(c.parsed.y)}`
+      : ` ${t("chart.range")}: ${Math.round(weeks[c.dataIndex].low)}–${Math.round(weeks[c.dataIndex].high)}`,
   };
   draw(id, {
     type: "bar",
@@ -121,13 +122,13 @@ export function drawWeeklyLoad(id, weeks) {
       labels: weeks.map((w) => w.week),
       datasets: [
         {
-          label: "Typical range (last 3 weeks)",
+          label: t("chart.rangeLegend"),
           data: weeks.map((w) => [w.low, w.high]),
           backgroundColor: css("--range-fill"),
           borderRadius: 4, borderSkipped: false, grouped: false, barPercentage: 0.95, categoryPercentage: 0.95,
         },
         {
-          label: "Weekly load",
+          label: t("chart.weeklyLoad"),
           data: weeks.map((w) => w.load),
           backgroundColor: seriesColor(0),
           borderRadius: 4, borderSkipped: "start", grouped: false, barPercentage: 0.45, categoryPercentage: 0.95,
@@ -150,10 +151,10 @@ export function drawVolume(id, vol, { unit, labelFor, sportColors, sportLabel })
   const digits = unit === "" ? 0 : 1;
   opts.plugins.tooltip.callbacks = {
     title: (items) => labelFor(vol.keys[items[0].dataIndex], true),
-    label: (c) => c.parsed.y ? ` ${c.dataset.label}: ${c.parsed.y.toFixed(digits)} ${unit}` : null,
+    label: (c) => c.parsed.y ? ` ${c.dataset.label}: ${num(c.parsed.y, digits)} ${unit}` : null,
     footer: (items) => {
       const total = items.reduce((s, c) => s + c.parsed.y, 0);
-      return items.length > 1 ? `Total: ${total.toFixed(digits)} ${unit}` : "";
+      return items.length > 1 ? `${t("chart.total")}: ${num(total, digits)} ${unit}` : "";
     },
   };
   const surface = css("--surface");
@@ -229,7 +230,7 @@ export function drawStreams(defs, series, onHover) {
     opts.scales.x = {
       type: "linear", min: xmin, max: xmax,
       grid: { display: false }, border: { color: css("--grid") },
-      ticks: { maxTicksLimit: 7, callback: (v) => `${+v.toFixed(1)}${unit}` },
+      ticks: { maxTicksLimit: 7, callback: (v) => `${num(v, Number.isInteger(v) ? 0 : 1)}${unit}` },
     };
     opts.scales.y.beginAtZero = false;
     opts.scales.y.reverse = !!d.reverse;

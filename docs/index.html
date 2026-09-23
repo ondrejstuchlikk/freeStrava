@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="cs">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -22,114 +22,122 @@
   <header class="topbar">
     <a href="#/" class="logo">free<span>Strava</span></a>
     <nav class="nav">
-      <a href="#/" data-view="home">Activities</a>
-      <a href="#/fitness" data-view="fitness">Fitness</a>
-      <a href="#/trends" data-view="trends">Trends</a>
+      <a href="#/" data-view="home" data-i18n="nav.activities">Aktivity</a>
+      <a href="#/fitness" data-view="fitness" data-i18n="nav.fitness">Kondice</a>
+      <a href="#/trends" data-view="trends" data-i18n="nav.trends">Trendy</a>
     </nav>
-    <button id="open-settings" type="button" class="icon-btn" aria-label="Settings" title="Settings">
-      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M19.4 13a7.7 7.7 0 0 0 0-2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-1.7-1L15 3.5h-4L10.6 6a7 7 0 0 0-1.7 1l-2.4-1-2 3.4L6.6 11a7.7 7.7 0 0 0 0 2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 1.7 1l.4 2.5h4l.4-2.5a7 7 0 0 0 1.7-1l2.4 1 2-3.4zM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg>
-    </button>
+    <div class="top-tools">
+      <div class="lang-switch" role="group" data-i18n-aria="nav.language">
+        <button type="button" data-lang="cs" aria-label="Čeština" title="Čeština">
+          <svg viewBox="0 0 6 4" aria-hidden="true"><rect width="6" height="2" fill="#fff"/><rect y="2" width="6" height="2" fill="#d7141a"/><path d="M0 0l3 2-3 2z" fill="#11457e"/></svg>
+        </button>
+        <button type="button" data-lang="en" aria-label="English" title="English">
+          <svg viewBox="0 0 60 30" aria-hidden="true"><clipPath id="uk-s"><path d="M0 0v30h60V0z"/></clipPath><clipPath id="uk-t"><path d="M30 15h30v15zv15H0zH0V0zV0h30z"/></clipPath><g clip-path="url(#uk-s)"><path d="M0 0v30h60V0z" fill="#012169"/><path d="M0 0l60 30m0-30L0 30" stroke="#fff" stroke-width="6"/><path d="M0 0l60 30m0-30L0 30" clip-path="url(#uk-t)" stroke="#c8102e" stroke-width="4"/><path d="M30 0v30M0 15h60" stroke="#fff" stroke-width="10"/><path d="M30 0v30M0 15h60" stroke="#c8102e" stroke-width="6"/></g></svg>
+        </button>
+      </div>
+      <button id="open-settings" type="button" class="icon-btn" data-i18n-aria="nav.settings" title="Nastavení">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M19.4 13a7.7 7.7 0 0 0 0-2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-1.7-1L15 3.5h-4L10.6 6a7 7 0 0 0-1.7 1l-2.4-1-2 3.4L6.6 11a7.7 7.7 0 0 0 0 2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 1.7 1l.4 2.5h4l.4-2.5a7 7 0 0 0 1.7-1l2.4 1 2-3.4zM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg>
+      </button>
+    </div>
   </header>
 
   <main class="content">
     <!-- ================= Home ================= -->
     <section id="view-home" class="view" hidden>
       <div class="card add-card">
-        <h1>Analyse an activity</h1>
-        <p class="muted">Deep stats for any of your Strava activities: splits, zones, best efforts, heart-rate drift and more. Everything is calculated on this device and nothing is uploaded.</p>
+        <h1 data-i18n="home.title"></h1>
+        <p class="muted" data-i18n="home.intro"></p>
 
         <ol class="steps">
           <li>
-            <h2>Get the activity file from Strava</h2>
+            <h2 data-i18n="step1.title"></h2>
 
             <div class="only-desktop">
-              <a class="btn primary" href="https://www.strava.com/athlete/training" target="_blank" rel="noopener" data-strava-open>Open my activities on Strava</a>
+              <a class="btn primary" href="https://www.strava.com/athlete/training" target="_blank" rel="noopener" data-strava-open data-i18n="desk.open"></a>
               <ol class="substeps">
-                <li>Log in if Strava asks, then click the activity you want.</li>
-                <li>Click the <b>⋯</b> (more) button on the left and choose <b>Export Original</b>. The file downloads.</li>
+                <li data-i18n="desk.s1"></li>
+                <li data-i18n-html="desk.s2"></li>
               </ol>
-              <p class="muted small">No ⋯ button? Copy the activity’s address, come back and paste it:</p>
+              <p class="muted small" data-i18n="desk.nomenu"></p>
             </div>
 
             <div class="only-phone">
-              <a class="btn primary" href="https://www.strava.com/login" target="_blank" rel="noopener" data-strava-open>Open Strava in the browser</a>
+              <a class="btn primary" href="https://www.strava.com/login" target="_blank" rel="noopener" data-strava-open data-i18n="phone.open"></a>
               <ol class="substeps">
-                <li>Log in. Use the browser, not the Strava app.</li>
-                <li>Open the activity (menu → <b>My Activities</b>) and copy the address from the address bar.</li>
-                <li>Come back here and tap <b>Paste link</b>.</li>
+                <li data-i18n="phone.s1"></li>
+                <li data-i18n-html="phone.s2"></li>
+                <li data-i18n-html="phone.s3"></li>
               </ol>
             </div>
 
             <div class="paste-row">
-              <button id="paste-link" type="button" class="btn">Paste link</button>
-              <label class="sr-only" for="strava-link">Strava activity link</label>
-              <input id="strava-link" type="url" inputmode="url" placeholder="…or paste the link here" autocomplete="off">
+              <button id="paste-link" type="button" class="btn" data-i18n="paste.btn"></button>
+              <input id="strava-link" type="url" inputmode="url" autocomplete="off" data-i18n-placeholder="paste.placeholder" data-i18n-aria="paste.label">
             </div>
             <p id="link-hint" class="hint" aria-live="polite"></p>
 
             <div id="link-ready" class="link-ready" hidden>
               <div class="only-desktop">
-                <a id="strava-download" class="btn primary" target="_blank" rel="noopener">Download from Strava</a>
+                <a id="strava-download" class="btn primary" target="_blank" rel="noopener" data-i18n="desk.download"></a>
               </div>
               <div class="only-phone">
-                <button id="copy-download" type="button" class="btn primary">Copy download link</button>
-                <p class="muted small">Then paste it into your browser’s address bar and open it. The file downloads. (Pasting it yourself stops the Strava app from taking over.)</p>
-                <label class="sr-only" for="download-url">Download link</label>
-                <input id="download-url" type="text" readonly>
+                <button id="copy-download" type="button" class="btn primary" data-i18n="phone.copy"></button>
+                <p class="muted small" data-i18n="phone.copyHelp"></p>
+                <input id="download-url" type="text" readonly data-i18n-aria="download.label">
               </div>
             </div>
             <p class="small"><button id="switch-device" type="button" class="link-btn"></button></p>
           </li>
           <li id="step-file">
-            <h2>Open the downloaded file here</h2>
+            <h2 data-i18n="step2.title"></h2>
             <label id="dropzone" class="dropzone">
               <input id="file-input" type="file" accept=".fit,.gpx,.tcx,.gz,application/octet-stream,application/gpx+xml" multiple>
-              <span id="choose-file" class="btn">Choose file</span>
-              <span class="muted small only-desktop">It’s in your Downloads folder, or drag it here from the browser’s downloads list</span>
-              <span class="muted small only-phone">Look under <b>Recents</b> or <b>Downloads</b></span>
+              <span id="choose-file" class="btn" data-i18n="step2.choose"></span>
+              <span class="muted small only-desktop" data-i18n="step2.deskHint"></span>
+              <span class="muted small only-phone" data-i18n-html="step2.phoneHint"></span>
             </label>
             <p id="add-status" class="status" role="status" hidden></p>
           </li>
         </ol>
-        <p class="muted small">No file handy? <a href="#/demo">See a demo activity</a>.</p>
+        <p class="muted small" data-i18n-html="home.demo"></p>
       </div>
 
-      <h2 id="history-head" class="section-title" hidden>Your activities</h2>
-      <p id="history-empty" class="muted center small" hidden>Activities you open are saved in this browser, so you can come back to them and build up your fitness curve.</p>
+      <h2 id="history-head" class="section-title" data-i18n="history.title" hidden></h2>
+      <p id="history-empty" class="muted center small" data-i18n="history.empty" hidden></p>
       <ul id="activity-list" class="act-list"></ul>
     </section>
 
     <!-- ================= Activity ================= -->
     <section id="view-activity" class="view" hidden>
-      <a href="#/" class="back">← All activities</a>
-      <div id="demo-banner" class="banner" hidden>Demo with made-up data. <a href="#/">Analyse your own activity →</a></div>
+      <a href="#/" class="back" data-i18n="act.back"></a>
+      <div id="demo-banner" class="banner" data-i18n-html="act.demoBanner" hidden></div>
       <div class="act-head">
         <div>
           <h1 id="act-title"></h1>
           <p id="act-sub" class="muted"></p>
         </div>
         <div class="act-actions">
-          <a id="act-strava" class="btn-ghost" target="_blank" rel="noopener" hidden>View on Strava</a>
-          <button id="act-delete" type="button" class="btn-ghost danger">Delete</button>
+          <a id="act-strava" class="btn-ghost" target="_blank" rel="noopener" data-i18n="act.viewStrava" hidden></a>
+          <button id="act-delete" type="button" class="btn-ghost danger" data-i18n="act.delete"></button>
         </div>
       </div>
-      <p id="act-loading" class="muted" hidden>Loading…</p>
+      <p id="act-loading" class="muted" data-i18n="act.loading" hidden></p>
 
       <div id="act-body" hidden>
         <div id="act-tiles" class="tiles"></div>
 
         <div class="card">
-          <h2>Highlights</h2>
+          <h2 data-i18n="act.highlights"></h2>
           <ul id="act-insights" class="insights"></ul>
         </div>
 
         <div id="map-card" class="card map-card">
           <div class="card-head">
-            <h2>Route</h2>
-            <div id="map-mode" class="seg" role="group" aria-label="Colour route by">
-              <button type="button" data-mode="speed" aria-pressed="true">Pace</button>
-              <button type="button" data-mode="hr" aria-pressed="false">Heart rate</button>
-              <button type="button" data-mode="grade" aria-pressed="false">Grade</button>
+            <h2 data-i18n="act.route"></h2>
+            <div id="map-mode" class="seg" role="group" data-i18n-aria="map.colorBy">
+              <button type="button" data-mode="speed" aria-pressed="true"></button>
+              <button type="button" data-mode="hr" aria-pressed="false" data-i18n="map.hr"></button>
+              <button type="button" data-mode="grade" aria-pressed="false" data-i18n="map.grade"></button>
             </div>
           </div>
           <div id="map" class="map"></div>
@@ -138,7 +146,7 @@
 
         <div class="card">
           <div class="card-head sticky-head">
-            <h2>Analysis</h2>
+            <h2 data-i18n="act.analysis"></h2>
             <span id="readout-x" class="muted small"></span>
           </div>
           <div id="act-charts"></div>
@@ -146,37 +154,37 @@
 
         <div id="splits-card" class="card">
           <div class="card-head">
-            <h2>Splits</h2>
-            <button id="export-splits" type="button" class="btn-ghost small">Download CSV</button>
+            <h2 data-i18n="act.splits"></h2>
+            <button id="export-splits" type="button" class="btn-ghost small" data-i18n="act.downloadCsv"></button>
           </div>
           <div class="table-wrap">
             <table class="splits"><thead id="splits-head"></thead><tbody id="splits-rows"></tbody></table>
           </div>
-          <p class="muted small">GAP = grade-adjusted pace: your equivalent pace on flat ground (estimate).</p>
+          <p class="muted small" data-i18n="act.gapNote"></p>
         </div>
 
         <div id="zones-card" class="card">
-          <h2>Zones</h2>
+          <h2 data-i18n="act.zones"></h2>
           <div id="act-zones" class="zone-grid"></div>
         </div>
 
         <div id="efforts-card" class="card">
-          <h2>Best efforts</h2>
+          <h2 data-i18n="act.bestEfforts"></h2>
           <div class="table-wrap">
-            <table class="efforts"><thead><tr><th>Distance</th><th class="num">Time</th><th class="num">Pace</th><th></th></tr></thead><tbody id="efforts-rows"></tbody></table>
+            <table class="efforts"><thead><tr><th data-i18n="th.distance"></th><th class="num" data-i18n="th.time"></th><th class="num" data-i18n="th.pace"></th><th></th></tr></thead><tbody id="efforts-rows"></tbody></table>
           </div>
           <p id="efforts-note" class="muted small"></p>
         </div>
 
         <div id="power-card" class="card">
-          <h2>Power curve</h2>
-          <div class="chart"><canvas id="chart-power-curve" role="img" aria-label="Best power for each duration"></canvas></div>
+          <h2 data-i18n="act.powerCurve"></h2>
+          <div class="chart"><canvas id="chart-power-curve" role="img" data-i18n-aria="act.powerCurve"></canvas></div>
         </div>
 
         <div class="card">
-          <h2>Download</h2>
+          <h2 data-i18n="act.download"></h2>
           <div class="row">
-            <button id="export-points" type="button" class="btn">All data points (CSV)</button>
+            <button id="export-points" type="button" class="btn" data-i18n="act.allPoints"></button>
           </div>
         </div>
       </div>
@@ -184,86 +192,86 @@
 
     <!-- ================= Fitness ================= -->
     <section id="view-fitness" class="view" hidden>
-      <h1>Fitness &amp; freshness</h1>
-      <p id="fitness-empty" class="muted" hidden>Add some activities first. The curve builds from every activity you open here.</p>
+      <h1 data-i18n="fit.title"></h1>
+      <p id="fitness-empty" class="muted" data-i18n="fit.empty" hidden></p>
       <div id="fitness-body">
         <p id="fitness-coverage" class="note"></p>
         <div class="tiles tiles-3">
-          <div class="tile"><span class="tile-label">Fitness</span><span id="stat-fitness" class="tile-value"></span><span id="stat-fitness-sub" class="tile-sub"></span></div>
-          <div class="tile"><span class="tile-label">Fatigue</span><span id="stat-fatigue" class="tile-value"></span><span class="tile-sub">last ~7 days</span></div>
-          <div class="tile"><span class="tile-label">Form</span><span id="stat-form" class="tile-value"></span><span id="stat-form-sub" class="tile-sub"></span></div>
+          <div class="tile"><span class="tile-label" data-i18n="chart.fitness"></span><span id="stat-fitness" class="tile-value"></span><span id="stat-fitness-sub" class="tile-sub"></span></div>
+          <div class="tile"><span class="tile-label" data-i18n="chart.fatigue"></span><span id="stat-fatigue" class="tile-value"></span><span class="tile-sub" data-i18n="fit.fatigueSub"></span></div>
+          <div class="tile"><span class="tile-label" data-i18n="chart.form"></span><span id="stat-form" class="tile-value"></span><span id="stat-form-sub" class="tile-sub"></span></div>
         </div>
         <div class="card">
           <div class="card-head">
-            <h2>Fitness &amp; fatigue</h2>
-            <div id="fitness-range" class="seg" role="group" aria-label="Time range">
-              <button type="button" data-days="91" aria-pressed="false">3M</button>
-              <button type="button" data-days="182" aria-pressed="true">6M</button>
-              <button type="button" data-days="365" aria-pressed="false">1Y</button>
-              <button type="button" data-days="0" aria-pressed="false">All</button>
+            <h2 data-i18n="fit.chartTitle"></h2>
+            <div id="fitness-range" class="seg" role="group" data-i18n-aria="fit.range">
+              <button type="button" data-days="91" aria-pressed="false" data-i18n="fit.r3"></button>
+              <button type="button" data-days="182" aria-pressed="true" data-i18n="fit.r6"></button>
+              <button type="button" data-days="365" aria-pressed="false" data-i18n="fit.r12"></button>
+              <button type="button" data-days="0" aria-pressed="false" data-i18n="fit.rAll"></button>
             </div>
           </div>
-          <div class="chart tall"><canvas id="chart-fitness" role="img" aria-label="Fitness and fatigue over time"></canvas></div>
-          <h3>Form <span class="muted">(fitness − fatigue: above 0 fresh, below 0 tired)</span></h3>
-          <div class="chart short"><canvas id="chart-form" role="img" aria-label="Form over time"></canvas></div>
+          <div class="chart tall"><canvas id="chart-fitness" role="img" data-i18n-aria="fit.chartTitle"></canvas></div>
+          <h3 data-i18n-html="fit.formTitle"></h3>
+          <div class="chart short"><canvas id="chart-form" role="img" data-i18n-aria="chart.form"></canvas></div>
         </div>
         <div class="card">
-          <h2>Weekly training load</h2>
-          <div class="chart"><canvas id="chart-weekly-load" role="img" aria-label="Weekly training load for the last 12 weeks"></canvas></div>
+          <h2 data-i18n="fit.weekly"></h2>
+          <div class="chart"><canvas id="chart-weekly-load" role="img" data-i18n-aria="fit.weekly"></canvas></div>
         </div>
         <details class="explain">
-          <summary>How is this calculated?</summary>
-          <p>Every activity gets a <b>training load</b> score, where 100 ≈ one hour at your threshold (your hardest sustainable effort). It comes from your heart rate second by second, or power if you set an FTP, or pace if there’s no heart rate.</p>
-          <p><b>Fitness</b> is your load averaged over ~6 weeks, <b>fatigue</b> over ~1 week, and <b>form</b> is yesterday’s fitness minus fatigue. Set your max and resting heart rate in Settings for more accurate numbers.</p>
+          <summary data-i18n="fit.how"></summary>
+          <p data-i18n-html="fit.how1"></p>
+          <p data-i18n-html="fit.how2"></p>
         </details>
       </div>
     </section>
 
     <!-- ================= Trends ================= -->
     <section id="view-trends" class="view" hidden>
-      <h1>Trends</h1>
-      <p id="trends-empty" class="muted" hidden>Add some activities first.</p>
+      <h1 data-i18n="tr.title"></h1>
+      <p id="trends-empty" class="muted" data-i18n="tr.empty" hidden></p>
       <div id="trends-body">
         <div class="filters">
-          <label>Per <select id="vol-period"><option value="week">Week</option><option value="month">Month</option><option value="year">Year</option></select></label>
-          <label>Show <select id="vol-metric"><option value="distance">Distance</option><option value="time">Time</option><option value="elevation">Elevation</option><option value="count">Activities</option></select></label>
-          <label>Sport <select id="vol-sport"></select></label>
+          <label><span data-i18n="tr.per"></span> <select id="vol-period"><option value="week" data-i18n="tr.week"></option><option value="month" data-i18n="tr.month"></option><option value="year" data-i18n="tr.year"></option></select></label>
+          <label><span data-i18n="tr.show"></span> <select id="vol-metric"><option value="distance" data-i18n="tr.distance"></option><option value="time" data-i18n="tr.time"></option><option value="elevation" data-i18n="tr.elevation"></option><option value="count" data-i18n="tr.count"></option></select></label>
+          <label><span data-i18n="tr.sport"></span> <select id="vol-sport"></select></label>
         </div>
         <div class="card">
-          <div class="chart tall"><canvas id="chart-volume" role="img" aria-label="Training volume by sport"></canvas></div>
+          <div class="chart tall"><canvas id="chart-volume" role="img" data-i18n-aria="tr.title"></canvas></div>
           <ul id="volume-totals" class="totals"></ul>
         </div>
       </div>
     </section>
   </main>
 
-  <footer class="powered">Uses data you export from Strava · Not affiliated with Strava, Inc. · Map © OpenStreetMap contributors</footer>
+  <footer class="powered" data-i18n="footer"></footer>
   <div id="toast" class="toast" role="status" hidden></div>
 
   <!-- ================= Settings ================= -->
   <dialog id="settings">
     <form id="settings-form">
-      <h2>Settings</h2>
-      <p class="muted">Used for zones and training load. Leave a field empty to use the estimate shown.</p>
-      <label>Max heart rate <input id="set-maxhr" type="number" inputmode="numeric" min="120" max="230"></label>
-      <label>Resting heart rate <input id="set-resthr" type="number" inputmode="numeric" min="30" max="100"></label>
-      <label>Heart-rate formula
-        <select id="set-sex"><option value="1.92">Male</option><option value="1.67">Female</option></select>
+      <h2 data-i18n="set.title"></h2>
+      <p class="muted" data-i18n="set.intro"></p>
+      <label><span data-i18n="set.maxhr"></span> <input id="set-maxhr" type="number" inputmode="numeric" min="120" max="230"></label>
+      <label><span data-i18n="set.resthr"></span> <input id="set-resthr" type="number" inputmode="numeric" min="30" max="100"></label>
+      <label><span data-i18n="set.formula"></span>
+        <select id="set-sex"><option value="1.92" data-i18n="set.male"></option><option value="1.67" data-i18n="set.female"></option></select>
       </label>
-      <label>Threshold run pace (min:sec per km) <input id="set-pace" type="text" inputmode="numeric" autocomplete="off"></label>
-      <label>Cycling FTP (watts, optional) <input id="set-ftp" type="number" inputmode="numeric" min="50" max="600"></label>
+      <label><span data-i18n="set.pace"></span> <input id="set-pace" type="text" inputmode="numeric" autocomplete="off"></label>
+      <label><span data-i18n="set.ftp"></span> <input id="set-ftp" type="number" inputmode="numeric" min="50" max="600"></label>
       <div class="dialog-actions">
-        <button type="button" id="settings-cancel" class="btn-ghost">Cancel</button>
-        <button type="submit" class="btn primary">Save</button>
+        <button type="button" id="settings-cancel" class="btn-ghost" data-i18n="set.cancel"></button>
+        <button type="submit" class="btn primary" data-i18n="set.save"></button>
       </div>
       <hr>
-      <h3>Your data</h3>
-      <p class="muted small">Stored only in this browser.</p>
+      <h3 data-i18n="set.data"></h3>
+      <p class="muted small" data-i18n="set.dataNote"></p>
       <div class="row">
-        <button id="export-all-csv" type="button" class="btn">All activities (CSV)</button>
-        <button id="export-all-json" type="button" class="btn">All activities (JSON)</button>
+        <button id="export-all-csv" type="button" class="btn" data-i18n="set.csv"></button>
+        <button id="export-all-json" type="button" class="btn" data-i18n="set.json"></button>
       </div>
-      <button id="delete-all" type="button" class="btn-ghost danger">Delete everything from this device</button>
+      <button id="delete-all" type="button" class="btn-ghost danger" data-i18n="set.deleteAll"></button>
     </form>
   </dialog>
 </body>

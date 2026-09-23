@@ -1,6 +1,7 @@
 // GPX and TCX readers (browser DOMParser). Namespaces are ignored by
 // matching local names, because exporters disagree on prefixes.
 import { build, nameFromFile } from "../activity.js";
+import { t } from "../i18n.js";
 
 const kids = (el, name) => (el ? [...el.getElementsByTagNameNS("*", name)] : []);
 const first = (el, name) => (el ? el.getElementsByTagNameNS("*", name)[0] || null : null);
@@ -16,7 +17,7 @@ const time = (el) => {
 
 function parse(text) {
   const doc = new DOMParser().parseFromString(text, "application/xml");
-  if (doc.getElementsByTagName("parsererror").length) throw new Error("The file couldn’t be read (invalid XML).");
+  if (doc.getElementsByTagName("parsererror").length) throw new Error(t("err.xml"));
   return doc;
 }
 
@@ -35,7 +36,7 @@ export function fromGpx(text, fileName) {
     temp: num(first(p, "atemp")),
     dist: null,
   }));
-  if (!pts.length) throw new Error("This GPX file has no track points.");
+  if (!pts.length) throw new Error(t("err.noPoints"));
   const trk = first(doc, "trk");
   const type = (first(trk, "type")?.textContent || "").trim().toLowerCase();
   return build(pts, {
@@ -65,7 +66,7 @@ export function fromTcx(text, fileName) {
       temp: null,
     };
   });
-  if (!pts.length) throw new Error("This TCX file has no track points.");
+  if (!pts.length) throw new Error(t("err.noPoints"));
   const creator = first(first(activity, "Creator"), "Name")?.textContent.trim();
   return build(pts, {
     name: nameFromFile(fileName),

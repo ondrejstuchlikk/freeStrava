@@ -12,6 +12,7 @@
 //   totals: { ascent, timerTime, elapsedTime } from the device, when present
 // }
 import { fitSportName } from "./parsers/fit.js";
+import { t as tr } from "./i18n.js";
 
 const EARTH_R = 6371008.8;
 
@@ -30,12 +31,12 @@ export function nameFromFile(fileName) {
 
 const MANUFACTURERS = {
   1: "Garmin", 23: "Suunto", 32: "Wahoo", 123: "Polar", 255: "Development", 260: "Zwift",
-  265: "Strava app", 289: "Hammerhead", 294: "Coros", 307: "Huawei", 310: "Apple",
+  265: "Strava", 289: "Hammerhead", 294: "Coros", 307: "Huawei", 310: "Apple",
 };
 
 export function fromFit(messages, fileName) {
   const records = messages.record || [];
-  if (!records.length) throw new Error("This file has no recorded data points.");
+  if (!records.length) throw new Error(tr("err.noRecords"));
 
   // Several apps (incl. Strava) write GPS, distance and HR as separate record
   // messages with the same timestamp — merge them.
@@ -108,7 +109,7 @@ export function fromFit(messages, fileName) {
  */
 export function build(pts, meta) {
   pts = pts.filter((p) => p.time != null).sort((a, b) => a.time - b.time);
-  if (pts.length < 2) throw new Error("This file has too few data points to analyse.");
+  if (pts.length < 2) throw new Error(tr("err.tooFew"));
   const n = pts.length;
   const start = meta.start ?? pts[0].time;
   const col = (k) => pts.map((p) => (p[k] == null || Number.isNaN(p[k]) ? null : p[k]));

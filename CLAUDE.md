@@ -56,6 +56,7 @@ docs/
   js/map.js             Leaflet route coloured by pace/HR/grade, hover marker
   js/demo.js            synthetic run + history for #/demo
   js/export.js          CSV/JSON download helpers
+  js/i18n.js            translations (cs default, en), t()/plurals/num(); applyTranslations() for data-i18n* attrs
   js/app.js             hash router + UI controller
 tests/                  ./tests/run.sh — runs *.test.js with macOS JavaScriptCore (no Node)
 ```
@@ -99,6 +100,11 @@ tests/                  ./tests/run.sh — runs *.test.js with macOS JavaScriptC
 - Local preview: `cd docs && python3 -m http.server 8000` → http://localhost:8000/#/demo
 - UI testing: Playwright + Chromium in a throwaway venv (not in the repo):
   `python3 -m venv venv && venv/bin/pip install playwright && venv/bin/playwright install chromium`.
-- User-facing text: plain, friendly, non-technical English. Name must not
+- **All user-facing text goes through `js/i18n.js`** (Czech is the default,
+  English second; choice stored in localStorage `freestrava.lang`). Static
+  HTML uses `data-i18n` / `data-i18n-html` / `data-i18n-placeholder` /
+  `data-i18n-aria`; JS uses `t(key, vars)` and `num()` for locale decimals
+  (7,47 km). Czech plurals use `{one, few, other}`. Add every new string in
+  both languages. Tone: plain, friendly, non-technical. Name must not
   imply Strava affiliation (footer says "Not affiliated with Strava, Inc.").
 - Owner's machine: git, python3, Homebrew, gh (logged in); no node.

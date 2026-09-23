@@ -1,12 +1,13 @@
 // Route map (Leaflet + OpenStreetMap tiles, loaded from CDN in index.html).
 // The route is coloured by a single-hue ramp (light = low, dark = high).
+import { t } from "./i18n.js";
 
 const RAMP = ["#86b6ef", "#6da7ec", "#5598e7", "#3987e5", "#2a78d6", "#256abf", "#1c5cab", "#184f95", "#104281", "#0d366b"];
 
 let map = null, layer = null, marker = null, track = null;
 
 export function drawMap(el, points, mode) {
-  if (!window.L) { el.textContent = "Map couldn’t load (offline?)."; return null; }
+  if (!window.L) { el.textContent = t("map.failed"); return null; }
   if (!map || map.getContainer() !== el) {
     map?.remove();
     map = L.map(el, { zoomControl: true, attributionControl: true, scrollWheelZoom: false, tap: true });

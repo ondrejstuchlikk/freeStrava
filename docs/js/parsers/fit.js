@@ -5,6 +5,8 @@
 //
 // Spec: https://developer.garmin.com/fit/protocol/
 
+import { t } from "../i18n.js";
+
 const FIT_EPOCH = 631065600; // 1989-12-31T00:00:00Z in Unix seconds
 
 // base type id → [byteSize, reader name, invalid value]
@@ -63,15 +65,15 @@ export function decodeFit(input) {
 
   while (pos + 12 <= bytes.length) {
     const headerSize = bytes[pos];
-    if (headerSize < 12) throw new FitError("Not a FIT file (bad header)");
+    if (headerSize < 12) throw new FitError(t("err.notFit"));
     const dataSize = view.getUint32(pos + 4, true);
     const sig = String.fromCharCode(bytes[pos + 8], bytes[pos + 9], bytes[pos + 10], bytes[pos + 11]);
-    if (sig !== ".FIT") throw new FitError("Not a FIT file");
+    if (sig !== ".FIT") throw new FitError(t("err.notFit"));
     const end = Math.min(pos + headerSize + dataSize, bytes.length);
     decodeChunk(bytes, view, pos + headerSize, end, messages);
     pos = end + 2; // skip file CRC; chained files may follow
   }
-  if (!Object.keys(messages).length) throw new FitError("Empty FIT file");
+  if (!Object.keys(messages).length) throw new FitError(t("err.noRecords"));
   return { messages };
 }
 
@@ -146,7 +148,7 @@ function decodeChunk(bytes, view, start, end, messages) {
   }
 
   function readData(def, p, compressedTs) {
-    if (!def) throw new FitError("Corrupt FIT file (data before definition)");
+    if (!def) throw new FitError(t("err.corruptFit"));
     const [name, profile] = PROFILE[def.global] || [String(def.global), {}];
     const msg = {};
     for (const f of def.fields) {

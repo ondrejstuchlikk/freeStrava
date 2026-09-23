@@ -2,10 +2,11 @@
 import { decodeFit } from "./fit.js";
 import { fromGpx, fromTcx } from "./xml.js";
 import { fromFit } from "../activity.js";
+import { t } from "../i18n.js";
 
 async function gunzip(bytes) {
   if (typeof DecompressionStream === "undefined") {
-    throw new Error("This browser can’t open .gz files. Please update it or unzip the file first.");
+    throw new Error(t("err.gz"));
   }
   const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
   return new Uint8Array(await new Response(stream).arrayBuffer());
@@ -26,9 +27,9 @@ export async function readActivityFile(file) {
   const head = text.slice(0, 2000);
   if (/<gpx[\s>]/i.test(head)) return fromGpx(text, name);
   if (/<TrainingCenterDatabase[\s>]/i.test(head)) return fromTcx(text, name);
-  if (/^PK/.test(head)) throw new Error("That’s a ZIP file. Please pick a single activity file (.fit, .gpx or .tcx).");
+  if (/^PK/.test(head)) throw new Error(t("err.zip"));
   if (/<html/i.test(head)) {
-    throw new Error("That file is a web page, not an activity. You probably weren’t logged in to strava.com when downloading — log in and try the download again.");
+    throw new Error(t("err.html"));
   }
-  throw new Error("Unknown file type. Please pick a .fit, .gpx or .tcx file exported from Strava.");
+  throw new Error(t("err.unknown"));
 }
