@@ -41,20 +41,24 @@ export function resolveSettings(activities, settings = {}) {
   const est = { maxHr: false, thresholdPace: false };
 
   if (!s.maxHr) {
+    // Highest HR seen, but never below 185: easy sessions alone would
+    // otherwise produce a far-too-low max and push everything into Z5.
     let m = 0;
     for (const a of activities) if (a.max_heartrate > m) m = a.max_heartrate;
-    s.maxHr = m >= 120 ? Math.round(m) : 190;
+    s.maxHr = Math.max(185, Math.round(m));
     est.maxHr = true;
   }
   if (!s.thresholdPace) {
-    // Fastest average speed over a run of 20–75 minutes, slightly discounted.
+    // Best 20-minute (grade-adjusted) speed from file analysis × 0.95; else
+    // fastest average speed over a 20–75 minute run, slightly discounted.
     let best = 0;
     for (const a of activities) {
       if (!RUN_TYPES.has(sportOf(a))) continue;
-      if (a.moving_time < 1200 || a.moving_time > 4500 || !a.average_speed) continue;
-      if (a.average_speed > best) best = a.average_speed;
+      const v = a.best20_speed ? a.best20_speed * 0.95
+        : a.moving_time >= 1200 && a.moving_time <= 4500 && a.average_speed ? a.average_speed * 0.97 : 0;
+      if (v > best) best = v;
     }
-    s.thresholdPace = best > 1.5 ? Math.round(1000 / (best * 0.97)) : 330; // 5:30/km default
+    s.thresholdPace = best > 1.5 ? Math.round(1000 / best) : 330; // 5:30/km default
     est.thresholdPace = true;
   }
   if (s.restHr >= s.maxHr) s.restHr = Math.round(s.maxHr * 0.35);
@@ -70,6 +74,8 @@ function trimp(minutes, hrr, k) {
  * @returns {{load:number, method:"power"|"hr"|"pace"|"est", intensity:number|null}}
  */
 export function activityLoad(a, s) {
+  // Load computed second-by-second from the activity file wins.
+  if (typeof a.load === "number") return { load: a.load, method: a.load_method || "hr", intensity: null };
   const sec = a.moving_time || a.elapsed_time || 0;
   if (sec <= 0) return { load: 0, method: "est", intensity: null };
   const hours = sec / 3600;

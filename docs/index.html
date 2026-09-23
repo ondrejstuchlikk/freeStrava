@@ -4,61 +4,166 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>freeStrava</title>
-  <meta name="description" content="Fitness, fatigue, form and training trends from your Strava activities — computed in your browser.">
+  <meta name="description" content="Detailed analysis of your Strava activities: splits, zones, best efforts, fitness and form. Computed in your browser.">
   <meta name="theme-color" content="#fc4c02">
-  <meta name="referrer" content="strict-origin-when-cross-origin">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23fc4c02'/%3E%3Cpath d='M7 22l6-8 5 5 7-10' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"
+        integrity="sha384-c6Rcwz4e4CITMbu/NBmnNS8yN2sC3cUElMEMfP3vqqKFp7GOYaaBBCqmaWBjmkjb" crossorigin="anonymous">
   <link rel="stylesheet" href="css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"
           integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ"
           crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"
+          integrity="sha384-NElt3Op+9NBMCYaef5HxeJmU4Xeard/Lku8ek6hoPTvYkQPh3zLIrJP7KiRocsxO"
+          crossorigin="anonymous" defer></script>
   <script type="module" src="js/app.js"></script>
 </head>
 <body>
-  <!-- ============ Landing ============ -->
-  <main id="landing" class="landing" hidden>
-    <div class="landing-card">
-      <h1>free<span>Strava</span></h1>
-      <p class="lede">See your fitness, fatigue and form curve, weekly training load and volume trends — from your own Strava activities.</p>
-      <button id="connect" class="btn-strava" type="button">Connect with Strava</button>
-      <p id="landing-error" class="error" role="alert" hidden></p>
-      <ul class="points">
-        <li><b>Private.</b> Your activities are loaded straight into this browser. Nothing is stored on any server.</li>
-        <li><b>Read-only.</b> This app can view your activities but can’t change anything on Strava.</li>
-        <li><b>Leave anytime.</b> “Disconnect” removes the app’s access and deletes the data from this device.</li>
-      </ul>
-      <p class="hint">Opened this from WhatsApp and login doesn’t work? Tap <b>⋯</b> or the share icon and choose <b>Open in browser</b>.</p>
-    </div>
-    <footer class="powered">Powered by Strava · Not affiliated with Strava, Inc.</footer>
-  </main>
-
-  <!-- ============ Dashboard ============ -->
-  <div id="dashboard" hidden>
-    <header class="topbar">
-      <div class="who">
-        <img id="athlete-photo" alt="" width="32" height="32" hidden>
-        <span id="athlete-name"></span>
-      </div>
-      <div class="actions">
-        <button id="refresh" type="button" class="btn-ghost" title="Load new activities">Refresh</button>
-        <button id="open-settings" type="button" class="btn-ghost">Settings</button>
-      </div>
-    </header>
-    <p id="sync-status" class="status" role="status" aria-live="polite"></p>
-
-    <nav class="tabs" role="tablist">
-      <button class="tab" role="tab" data-tab="fitness" aria-selected="true">Fitness</button>
-      <button class="tab" role="tab" data-tab="effort" aria-selected="false">Effort</button>
-      <button class="tab" role="tab" data-tab="volume" aria-selected="false">Volume</button>
-      <button class="tab" role="tab" data-tab="export" aria-selected="false">Export</button>
+  <header class="topbar">
+    <a href="#/" class="logo">free<span>Strava</span></a>
+    <nav class="nav">
+      <a href="#/" data-view="home">Activities</a>
+      <a href="#/fitness" data-view="fitness">Fitness</a>
+      <a href="#/trends" data-view="trends">Trends</a>
     </nav>
+    <button id="open-settings" type="button" class="icon-btn" aria-label="Settings" title="Settings">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M19.4 13a7.7 7.7 0 0 0 0-2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-1.7-1L15 3.5h-4L10.6 6a7 7 0 0 0-1.7 1l-2.4-1-2 3.4L6.6 11a7.7 7.7 0 0 0 0 2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 1.7 1l.4 2.5h4l.4-2.5a7 7 0 0 0 1.7-1l2.4 1 2-3.4zM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg>
+    </button>
+  </header>
 
-    <main class="content">
-      <p id="empty" class="empty" hidden>No activities found on your Strava account yet.</p>
+  <main class="content">
+    <!-- ================= Home ================= -->
+    <section id="view-home" class="view" hidden>
+      <div class="card add-card">
+        <h1>Analyse an activity</h1>
+        <p class="muted">Deep stats for any of your Strava activities: splits, zones, best efforts, heart-rate drift and more. Everything is calculated on this device and nothing is uploaded.</p>
 
-      <!-- Fitness -->
-      <section id="panel-fitness" class="tab-panel" role="tabpanel" hidden>
-        <div class="tiles">
+        <ol class="steps">
+          <li>
+            <h2>Download the activity file from Strava</h2>
+            <p class="muted small">Log in on strava.com (in your browser, not the Strava app), open the activity and copy its address.</p>
+            <label class="sr-only" for="strava-link">Strava activity link</label>
+            <input id="strava-link" type="url" inputmode="url" placeholder="https://www.strava.com/activities/…" autocomplete="off">
+            <p id="link-hint" class="hint" aria-live="polite"></p>
+            <div class="row">
+              <a id="strava-download" class="btn primary" target="_blank" rel="noopener" aria-disabled="true">Download from Strava</a>
+              <a id="strava-gpx" class="small-link" target="_blank" rel="noopener" hidden>or get it as GPX</a>
+            </div>
+            <details class="help">
+              <summary>Where do I find the link?</summary>
+              <p>On a computer, open <a href="https://www.strava.com/athlete/training" target="_blank" rel="noopener">your activities on strava.com</a>, click one and copy the address bar.</p>
+              <p>On a phone, open the same link in Safari or Chrome and log in if asked. Tap an activity and copy the address from the address bar.</p>
+              <p>Shortcut: add <code>/export_original</code> to the end of any of your activity addresses and the file downloads straight away.</p>
+            </details>
+          </li>
+          <li>
+            <h2>Open the downloaded file here</h2>
+            <label id="dropzone" class="dropzone">
+              <input id="file-input" type="file" accept=".fit,.gpx,.tcx,.gz,application/octet-stream,application/gpx+xml" multiple>
+              <span class="btn">Choose file</span>
+              <span class="muted small">or drop .fit / .gpx / .tcx files here</span>
+            </label>
+            <p id="add-status" class="status" role="status" hidden></p>
+          </li>
+        </ol>
+        <p class="muted small">No file handy? <a href="#/demo">See a demo activity</a>.</p>
+      </div>
+
+      <h2 id="history-head" class="section-title" hidden>Your activities</h2>
+      <p id="history-empty" class="muted center small" hidden>Activities you open are saved in this browser, so you can come back to them and build up your fitness curve.</p>
+      <ul id="activity-list" class="act-list"></ul>
+    </section>
+
+    <!-- ================= Activity ================= -->
+    <section id="view-activity" class="view" hidden>
+      <a href="#/" class="back">← All activities</a>
+      <div id="demo-banner" class="banner" hidden>Demo with made-up data. <a href="#/">Analyse your own activity →</a></div>
+      <div class="act-head">
+        <div>
+          <h1 id="act-title"></h1>
+          <p id="act-sub" class="muted"></p>
+        </div>
+        <div class="act-actions">
+          <a id="act-strava" class="btn-ghost" target="_blank" rel="noopener" hidden>View on Strava</a>
+          <button id="act-delete" type="button" class="btn-ghost danger">Delete</button>
+        </div>
+      </div>
+      <p id="act-loading" class="muted" hidden>Loading…</p>
+
+      <div id="act-body" hidden>
+        <div id="act-tiles" class="tiles"></div>
+
+        <div class="card">
+          <h2>Highlights</h2>
+          <ul id="act-insights" class="insights"></ul>
+        </div>
+
+        <div id="map-card" class="card map-card">
+          <div class="card-head">
+            <h2>Route</h2>
+            <div id="map-mode" class="seg" role="group" aria-label="Colour route by">
+              <button type="button" data-mode="speed" aria-pressed="true">Pace</button>
+              <button type="button" data-mode="hr" aria-pressed="false">Heart rate</button>
+              <button type="button" data-mode="grade" aria-pressed="false">Grade</button>
+            </div>
+          </div>
+          <div id="map" class="map"></div>
+          <div id="map-legend" class="map-legend"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head sticky-head">
+            <h2>Analysis</h2>
+            <span id="readout-x" class="muted small"></span>
+          </div>
+          <div id="act-charts"></div>
+        </div>
+
+        <div id="splits-card" class="card">
+          <div class="card-head">
+            <h2>Splits</h2>
+            <button id="export-splits" type="button" class="btn-ghost small">Download CSV</button>
+          </div>
+          <div class="table-wrap">
+            <table class="splits"><thead id="splits-head"></thead><tbody id="splits-rows"></tbody></table>
+          </div>
+          <p class="muted small">GAP = grade-adjusted pace: your equivalent pace on flat ground (estimate).</p>
+        </div>
+
+        <div id="zones-card" class="card">
+          <h2>Zones</h2>
+          <div id="act-zones" class="zone-grid"></div>
+        </div>
+
+        <div id="efforts-card" class="card">
+          <h2>Best efforts</h2>
+          <div class="table-wrap">
+            <table class="efforts"><thead><tr><th>Distance</th><th class="num">Time</th><th class="num">Pace</th><th></th></tr></thead><tbody id="efforts-rows"></tbody></table>
+          </div>
+          <p id="efforts-note" class="muted small"></p>
+        </div>
+
+        <div id="power-card" class="card">
+          <h2>Power curve</h2>
+          <div class="chart"><canvas id="chart-power-curve" role="img" aria-label="Best power for each duration"></canvas></div>
+        </div>
+
+        <div class="card">
+          <h2>Download</h2>
+          <div class="row">
+            <button id="export-points" type="button" class="btn">All data points (CSV)</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= Fitness ================= -->
+    <section id="view-fitness" class="view" hidden>
+      <h1>Fitness &amp; freshness</h1>
+      <p id="fitness-empty" class="muted" hidden>Add some activities first. The curve builds from every activity you open here.</p>
+      <div id="fitness-body">
+        <p id="fitness-coverage" class="note"></p>
+        <div class="tiles tiles-3">
           <div class="tile"><span class="tile-label">Fitness</span><span id="stat-fitness" class="tile-value"></span><span id="stat-fitness-sub" class="tile-sub"></span></div>
           <div class="tile"><span class="tile-label">Fatigue</span><span id="stat-fatigue" class="tile-value"></span><span class="tile-sub">last ~7 days</span></div>
           <div class="tile"><span class="tile-label">Form</span><span id="stat-form" class="tile-value"></span><span id="stat-form-sub" class="tile-sub"></span></div>
@@ -77,34 +182,23 @@
           <h3>Form <span class="muted">(fitness − fatigue: above 0 fresh, below 0 tired)</span></h3>
           <div class="chart short"><canvas id="chart-form" role="img" aria-label="Form over time"></canvas></div>
         </div>
-        <details class="explain">
-          <summary>How is this calculated?</summary>
-          <p>Every activity gets a <b>training load</b> score, where 100 ≈ one hour at your threshold (your hardest sustainable effort). It uses power if you set an FTP, otherwise heart rate (Banister TRIMP), otherwise running pace, otherwise a rough estimate from duration.</p>
-          <p><b>Fitness</b> is your load averaged over ~6 weeks, <b>fatigue</b> over ~1 week, and <b>form</b> is yesterday’s fitness minus fatigue. Set your max and resting heart rate in Settings for more accurate numbers.</p>
-          <p id="load-methods" class="muted"></p>
-        </details>
-      </section>
-
-      <!-- Effort -->
-      <section id="panel-effort" class="tab-panel" role="tabpanel" hidden>
         <div class="card">
           <h2>Weekly training load</h2>
-          <p id="effort-summary" class="muted"></p>
           <div class="chart"><canvas id="chart-weekly-load" role="img" aria-label="Weekly training load for the last 12 weeks"></canvas></div>
         </div>
-        <div class="card">
-          <h2>Recent activities</h2>
-          <div class="table-wrap">
-            <table class="acts">
-              <thead><tr><th>Date</th><th>Activity</th><th class="num">Load</th><th class="num" title="Strava's Relative Effort, when Strava provides it">Strava RE</th><th class="num">Avg HR</th></tr></thead>
-              <tbody id="effort-rows"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
+        <details class="explain">
+          <summary>How is this calculated?</summary>
+          <p>Every activity gets a <b>training load</b> score, where 100 ≈ one hour at your threshold (your hardest sustainable effort). It comes from your heart rate second by second, or power if you set an FTP, or pace if there’s no heart rate.</p>
+          <p><b>Fitness</b> is your load averaged over ~6 weeks, <b>fatigue</b> over ~1 week, and <b>form</b> is yesterday’s fitness minus fatigue. Set your max and resting heart rate in Settings for more accurate numbers.</p>
+        </details>
+      </div>
+    </section>
 
-      <!-- Volume -->
-      <section id="panel-volume" class="tab-panel" role="tabpanel" hidden>
+    <!-- ================= Trends ================= -->
+    <section id="view-trends" class="view" hidden>
+      <h1>Trends</h1>
+      <p id="trends-empty" class="muted" hidden>Add some activities first.</p>
+      <div id="trends-body">
         <div class="filters">
           <label>Per <select id="vol-period"><option value="week">Week</option><option value="month">Month</option><option value="year">Year</option></select></label>
           <label>Show <select id="vol-metric"><option value="distance">Distance</option><option value="time">Time</option><option value="elevation">Elevation</option><option value="count">Activities</option></select></label>
@@ -114,47 +208,37 @@
           <div class="chart tall"><canvas id="chart-volume" role="img" aria-label="Training volume by sport"></canvas></div>
           <ul id="volume-totals" class="totals"></ul>
         </div>
-      </section>
+      </div>
+    </section>
+  </main>
 
-      <!-- Export -->
-      <section id="panel-export" class="tab-panel" role="tabpanel" hidden>
-        <div class="card">
-          <h2>Download your data</h2>
-          <p class="muted"><span id="export-count"></span> activities. Files are created on this device — nothing is uploaded.</p>
-          <div class="export-buttons">
-            <button id="export-csv" type="button" class="btn">Activities (CSV, opens in Excel)</button>
-            <button id="export-json" type="button" class="btn">Activities (JSON, all raw fields)</button>
-            <button id="export-fitness" type="button" class="btn">Daily fitness / fatigue / form (CSV)</button>
-          </div>
-        </div>
-        <div class="card">
-          <h2>Account</h2>
-          <div class="export-buttons">
-            <button id="full-resync" type="button" class="btn">Reload full history from Strava</button>
-            <button id="disconnect" type="button" class="btn danger">Disconnect &amp; delete data from this device</button>
-          </div>
-        </div>
-      </section>
-    </main>
-    <footer class="powered">Powered by Strava · Not affiliated with Strava, Inc.</footer>
-  </div>
+  <footer class="powered">Uses data you export from Strava · Not affiliated with Strava, Inc. · Map © OpenStreetMap contributors</footer>
+  <div id="toast" class="toast" role="status" hidden></div>
 
-  <!-- ============ Settings ============ -->
+  <!-- ================= Settings ================= -->
   <dialog id="settings">
     <form id="settings-form">
       <h2>Settings</h2>
-      <p class="muted">Leave a field empty to use the estimate shown.</p>
+      <p class="muted">Used for zones and training load. Leave a field empty to use the estimate shown.</p>
       <label>Max heart rate <input id="set-maxhr" type="number" inputmode="numeric" min="120" max="230"></label>
       <label>Resting heart rate <input id="set-resthr" type="number" inputmode="numeric" min="30" max="100"></label>
       <label>Heart-rate formula
         <select id="set-sex"><option value="1.92">Male</option><option value="1.67">Female</option></select>
       </label>
-      <label>Threshold run pace (min:sec per km) <input id="set-pace" type="text" inputmode="numeric" pattern="\d{1,2}:[0-5]\d" autocomplete="off"></label>
+      <label>Threshold run pace (min:sec per km) <input id="set-pace" type="text" inputmode="numeric" autocomplete="off"></label>
       <label>Cycling FTP (watts, optional) <input id="set-ftp" type="number" inputmode="numeric" min="50" max="600"></label>
       <div class="dialog-actions">
         <button type="button" id="settings-cancel" class="btn-ghost">Cancel</button>
         <button type="submit" class="btn primary">Save</button>
       </div>
+      <hr>
+      <h3>Your data</h3>
+      <p class="muted small">Stored only in this browser.</p>
+      <div class="row">
+        <button id="export-all-csv" type="button" class="btn">All activities (CSV)</button>
+        <button id="export-all-json" type="button" class="btn">All activities (JSON)</button>
+      </div>
+      <button id="delete-all" type="button" class="btn-ghost danger">Delete everything from this device</button>
     </form>
   </dialog>
 </body>

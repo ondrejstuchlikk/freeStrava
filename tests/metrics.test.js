@@ -27,6 +27,9 @@ const acts = [
 ];
 const { settings: s, estimated } = resolveSettings(acts, {});
 ok(s.maxHr === 186 && estimated.maxHr, "maxHr estimated from data");
+ok(resolveSettings([{ max_heartrate: 140 }], {}).settings.maxHr === 185, "maxHr estimate has a floor");
+near(resolveSettings([{ sport_type: "Run", best20_speed: 3 }], {}).settings.thresholdPace, 1000 / 2.85, 1, "threshold from best 20 min");
+ok(activityLoad({ load: 42, load_method: "hr" }, s).load === 42, "precomputed load wins");
 near(s.thresholdPace, 1000 / (3.5 * 0.97), 1, "threshold pace ignores short runs");
 
 // loads: 1 h at threshold HRR ≈ 100

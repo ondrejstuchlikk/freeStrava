@@ -1,7 +1,54 @@
-// Synthetic activities for ?demo — lets anyone preview the app without a
-// Strava account (and lets us test the UI without spending API requests).
+// Synthetic data for the demo — lets anyone preview the app without a file.
+import { build } from "./activity.js";
 
-export function demoActivities(days = 540) {
+/** A ~7.6 km run: 4 laps of a hilly park loop, with a 1-minute pause. */
+export function demoActivity() {
+  const now = new Date();
+  const start = Math.floor(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1, 16, 30) / 1000);
+  const c = { lat: 50.1052, lon: 14.4235 }, rx = 380, ry = 260; // metres
+  const mLat = 111320, mLon = 111320 * Math.cos((c.lat * Math.PI) / 180);
+  const lapLen = 2 * Math.PI * Math.sqrt((rx * rx + ry * ry) / 2);
+  const pts = [], events = [];
+  let d = 0, hr = 95, t = 0, seed = 7;
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  let paused = 0;
+  while (d < lapLen * 4) {
+    const theta = (d / lapLen) * 2 * Math.PI;
+    const alt = 205 + 11 * Math.sin(theta) + 4 * Math.sin(3 * theta);
+    const grade = (11 * Math.cos(theta) + 12 * Math.cos(3 * theta)) * (2 * Math.PI / lapLen);
+    if (!paused && d > 3500) { paused = 60; events.push({ time: start + t, on: false }); }
+    let v = 0;
+    if (paused > 0) {
+      paused--;
+      if (paused === 0) { paused = -1; events.push({ time: start + t + 1, on: true }); }
+    } else {
+      const lap = Math.floor(d / lapLen);
+      v = 3.05 + 0.12 * lap - 6 * grade + 0.15 * (rnd() - 0.5);
+    }
+    d += v;
+    const target = v ? 118 + 22 * (v - 2.6) + 260 * Math.max(0, grade) + t / 240 : 100;
+    hr += (target - hr) * 0.04;
+    const jitter = () => (rnd() - 0.5) * 3e-5;
+    pts.push({
+      time: start + t,
+      lat: c.lat + (ry * Math.sin(theta)) / mLat + jitter(),
+      lon: c.lon + (rx * Math.cos(theta)) / mLon + jitter(),
+      alt: alt + (rnd() - 0.5) * 0.6,
+      dist: d,
+      hr: Math.round(hr + (rnd() - 0.5) * 2),
+      cad: v ? 84 + Math.round(v * 2) : null,
+      power: null, temp: 17,
+    });
+    t++;
+  }
+  return build(pts, {
+    name: "Evening Run (demo)", sport: "Run", source: "fit", device: "Demo watch",
+    timerEvents: events, totals: {}, tzOffset: 7200,
+  });
+}
+
+/** ~18 months of made-up activity summaries for the fitness/trend views. */
+export function demoHistory(days = 540) {
   let seed = 42;
   const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
   const out = [];

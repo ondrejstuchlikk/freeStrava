@@ -2,3 +2,11 @@
 .wrangler/
 .dev.vars
 node_modules/
+
+# personal activity files (contain GPS tracks) — never commit
+*.fit
+*.fit.gz
+*.gpx
+*.tcx
+*.zip
+samples/

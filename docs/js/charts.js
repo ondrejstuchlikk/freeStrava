@@ -174,3 +174,105 @@ export function drawVolume(id, vol, { unit, labelFor, sportColors, sportLabel })
     options: opts,
   });
 }
+
+// ---------- single-activity stream charts (synced crosshair) ----------
+
+/**
+ * Stacked line charts sharing one x axis (km or minutes). Hovering/touching
+ * any chart moves a crosshair on all of them and calls onHover(x | null).
+ * defs: [{id, key, label, color, fmt(v), reverse, fill, min, max}]
+ */
+export function drawStreams(defs, series, onHover) {
+  const group = { x: null, charts: [], raf: 0 };
+  const redraw = () => {
+    cancelAnimationFrame(group.raf);
+    group.raf = requestAnimationFrame(() => group.charts.forEach((c) => c.draw()));
+  };
+  const setX = (x) => {
+    if (x === group.x) return;
+    group.x = x;
+    onHover?.(x);
+    redraw();
+  };
+  const crosshair = {
+    id: "crosshair",
+    afterEvent(chart, args) {
+      const e = args.event;
+      if (e.type === "mouseout") return setX(null);
+      if (!["mousemove", "touchmove", "touchstart", "click"].includes(e.type)) return;
+      const { left, right } = chart.chartArea;
+      if (e.x < left || e.x > right) return;
+      setX(chart.scales.x.getValueForPixel(e.x));
+    },
+    afterDatasetsDraw(chart) {
+      if (group.x == null) return;
+      const px = chart.scales.x.getPixelForValue(group.x);
+      const { top, bottom } = chart.chartArea;
+      const ctx = chart.ctx;
+      ctx.save();
+      ctx.strokeStyle = css("--text-secondary");
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(px, top); ctx.lineTo(px, bottom); ctx.stroke();
+      ctx.restore();
+    },
+  };
+
+  const xmin = series.x[0], xmax = series.x.at(-1);
+  const unit = series.xKind === "km" ? " km" : " min";
+  for (const d of defs) {
+    const opts = base();
+    opts.plugins.legend.display = false;
+    opts.plugins.tooltip.enabled = false;
+    opts.interaction = { mode: "nearest", axis: "x", intersect: false };
+    opts.events = ["mousemove", "mouseout", "click", "touchstart", "touchmove"];
+    opts.layout = { padding: { right: 4 } };
+    opts.scales.x = {
+      type: "linear", min: xmin, max: xmax,
+      grid: { display: false }, border: { color: css("--grid") },
+      ticks: { maxTicksLimit: 7, callback: (v) => `${+v.toFixed(1)}${unit}` },
+    };
+    opts.scales.y.beginAtZero = false;
+    opts.scales.y.reverse = !!d.reverse;
+    opts.scales.y.ticks = { maxTicksLimit: 4, callback: (v) => d.fmt(v) };
+    if (d.min != null) opts.scales.y.suggestedMin = d.min;
+    if (d.max != null) opts.scales.y.max = d.max;
+    const color = d.color;
+    // Fill down to the data's own minimum (not to the axis edge, which can
+    // produce stray polygons when the scale is not zero-based).
+    const vals = series[d.key].filter((v) => v != null);
+    const floor = vals.length ? Math.min(...vals) : 0;
+    draw(d.id, {
+      type: "line",
+      data: {
+        datasets: [{
+          data: series.x.map((x, i) => ({ x, y: series[d.key][i] })),
+          borderColor: color,
+          backgroundColor: d.fill ? color + "33" : color,
+          fill: d.fill ? { target: { value: floor } } : false,
+          borderWidth: 1.5, pointRadius: 0, tension: 0.25, spanGaps: false,
+        }],
+      },
+      options: opts,
+      plugins: [crosshair],
+    });
+    group.charts.push(charts.get(d.id));
+  }
+  return { setX };
+}
+
+/** Best power for each duration (line over log-spaced category axis). */
+export function drawPowerCurve(id, curve) {
+  const opts = base();
+  opts.plugins.legend.display = false;
+  opts.scales.y.beginAtZero = false;
+  const label = (s) => (s < 60 ? `${s}s` : s < 3600 ? `${s / 60}min` : `${s / 3600}h`);
+  opts.plugins.tooltip.callbacks = { label: (c) => ` ${Math.round(c.parsed.y)} W` };
+  draw(id, {
+    type: "line",
+    data: {
+      labels: curve.map((p) => label(p.sec)),
+      datasets: [{ data: curve.map((p) => p.watts), borderColor: seriesColor(0), backgroundColor: seriesColor(0), borderWidth: 2, pointRadius: 3, tension: 0.3 }],
+    },
+    options: opts,
+  });
+}
