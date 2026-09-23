@@ -20,6 +20,16 @@ public repo `freeStrava`, GitHub Pages from `main` → `/docs`). Demo: `#/demo`.
   the user then picks the downloaded file. The app can NOT fetch it itself
   (cross-origin + needs the user's Strava cookies; a server holding
   credentials would break Strava's terms). Never add scraping.
+- **Phones: Strava app links.** strava.com's apple-app-site-association claims
+  `/activities/*`, `/athlete/*`, `/dashboard` etc., and Android app links claim
+  all URLs, so tapping a strava.com link from our site opens the Strava app
+  (which can't export). So on phones: "Open Strava" goes to `/login` (not
+  claimed), the user copies the activity URL → our **Paste link** button
+  (clipboard API) → **Copy download link** → user pastes it into the address
+  bar (typed/pasted URLs never trigger the app). Computers: open
+  `/athlete/training`, then ⋯ → Export Original, or paste → direct download link.
+  A page can't read other tabs' URLs or the Downloads folder; desktop
+  Chrome/Edge get `showOpenFilePicker({startIn: "downloads"})`.
 - **Static site, everything in the browser**: plain HTML/CSS/vanilla JS ES
   modules, no build step, no npm. Chart.js 4 (jsDelivr) and Leaflet 1.9.4
   (cdnjs) are pinned with SRI hashes. Map tiles from OpenStreetMap (attribution shown).
@@ -73,8 +83,9 @@ tests/                  ./tests/run.sh — runs *.test.js with macOS JavaScriptC
 
 ## Roadmap
 
-- Test the phone flow on real iPhone/Android (strava.com login in mobile
-  browser, where the file lands, picking it).
+- Test the phone flow on real iPhone/Android: does /login open in the browser,
+  where does login land, is "My Activities" reachable on mobile web, does
+  pasting …/export_original download the file, where does it land.
 - Import Strava's bulk export ZIP (Settings → My Account → Download your
   data) for full history: read `activities/*.fit.gz|gpx|tcx` lazily from the
   ZIP (large files on phones!); `activities.csv` headers may be localized.

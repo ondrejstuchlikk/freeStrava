@@ -40,28 +40,53 @@
 
         <ol class="steps">
           <li>
-            <h2>Download the activity file from Strava</h2>
-            <p class="muted small">Log in on strava.com (in your browser, not the Strava app), open the activity and copy its address.</p>
-            <label class="sr-only" for="strava-link">Strava activity link</label>
-            <input id="strava-link" type="url" inputmode="url" placeholder="https://www.strava.com/activities/…" autocomplete="off">
-            <p id="link-hint" class="hint" aria-live="polite"></p>
-            <div class="row">
-              <a id="strava-download" class="btn primary" target="_blank" rel="noopener" aria-disabled="true">Download from Strava</a>
-              <a id="strava-gpx" class="small-link" target="_blank" rel="noopener" hidden>or get it as GPX</a>
+            <h2>Get the activity file from Strava</h2>
+
+            <div class="only-desktop">
+              <a class="btn primary" href="https://www.strava.com/athlete/training" target="_blank" rel="noopener" data-strava-open>Open my activities on Strava</a>
+              <ol class="substeps">
+                <li>Log in if Strava asks, then click the activity you want.</li>
+                <li>Click the <b>⋯</b> (more) button on the left and choose <b>Export Original</b>. The file downloads.</li>
+              </ol>
+              <p class="muted small">No ⋯ button? Copy the activity’s address, come back and paste it:</p>
             </div>
-            <details class="help">
-              <summary>Where do I find the link?</summary>
-              <p>On a computer, open <a href="https://www.strava.com/athlete/training" target="_blank" rel="noopener">your activities on strava.com</a>, click one and copy the address bar.</p>
-              <p>On a phone, open the same link in Safari or Chrome and log in if asked. Tap an activity and copy the address from the address bar.</p>
-              <p>Shortcut: add <code>/export_original</code> to the end of any of your activity addresses and the file downloads straight away.</p>
-            </details>
+
+            <div class="only-phone">
+              <a class="btn primary" href="https://www.strava.com/login" target="_blank" rel="noopener" data-strava-open>Open Strava in the browser</a>
+              <ol class="substeps">
+                <li>Log in. Use the browser, not the Strava app.</li>
+                <li>Open the activity (menu → <b>My Activities</b>) and copy the address from the address bar.</li>
+                <li>Come back here and tap <b>Paste link</b>.</li>
+              </ol>
+            </div>
+
+            <div class="paste-row">
+              <button id="paste-link" type="button" class="btn">Paste link</button>
+              <label class="sr-only" for="strava-link">Strava activity link</label>
+              <input id="strava-link" type="url" inputmode="url" placeholder="…or paste the link here" autocomplete="off">
+            </div>
+            <p id="link-hint" class="hint" aria-live="polite"></p>
+
+            <div id="link-ready" class="link-ready" hidden>
+              <div class="only-desktop">
+                <a id="strava-download" class="btn primary" target="_blank" rel="noopener">Download from Strava</a>
+              </div>
+              <div class="only-phone">
+                <button id="copy-download" type="button" class="btn primary">Copy download link</button>
+                <p class="muted small">Then paste it into your browser’s address bar and open it. The file downloads. (Pasting it yourself stops the Strava app from taking over.)</p>
+                <label class="sr-only" for="download-url">Download link</label>
+                <input id="download-url" type="text" readonly>
+              </div>
+            </div>
+            <p class="small"><button id="switch-device" type="button" class="link-btn"></button></p>
           </li>
-          <li>
+          <li id="step-file">
             <h2>Open the downloaded file here</h2>
             <label id="dropzone" class="dropzone">
               <input id="file-input" type="file" accept=".fit,.gpx,.tcx,.gz,application/octet-stream,application/gpx+xml" multiple>
-              <span class="btn">Choose file</span>
-              <span class="muted small">or drop .fit / .gpx / .tcx files here</span>
+              <span id="choose-file" class="btn">Choose file</span>
+              <span class="muted small only-desktop">It’s in your Downloads folder, or drag it here from the browser’s downloads list</span>
+              <span class="muted small only-phone">Look under <b>Recents</b> or <b>Downloads</b></span>
             </label>
             <p id="add-status" class="status" role="status" hidden></p>
           </li>

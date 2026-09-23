@@ -31,6 +31,7 @@ const state = {
   fitnessRange: 182,
   volume: { period: "week", metric: "distance", sport: "all" },
   pendingStravaId: null,
+  awayForFile: false, // user left for Strava; highlight step 2 when they return
 };
 
 // ================= boot & routing =================
@@ -144,27 +145,104 @@ async function saveSettings(e) {
 
 // ================= adding files =================
 
-function onStravaLinkInput() {
-  const v = $("#strava-link").value.trim();
+// ---- step 1: getting the file from Strava ----
+//
+// Phones: strava.com/activities/* and /athlete/* are "universal links" /
+// Android app links, so tapping them opens the Strava app (which can't
+// export). /login opens in the browser, and URLs pasted into the address
+// bar never trigger the app — hence "Copy download link" on phones.
+
+const DEVICE_KEY = "freestrava.device";
+
+function detectPhone() {
+  try {
+    const saved = localStorage.getItem(DEVICE_KEY);
+    if (saved) return saved === "phone";
+  } catch { /* ignore */ }
+  const ua = navigator.userAgent;
+  return /Android|iPhone|iPad|iPod/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+}
+
+function setDeviceMode(phone, remember = false) {
+  document.body.classList.toggle("phone", phone);
+  $("#switch-device").textContent = phone ? "Using a computer? Show computer steps" : "Using a phone or tablet? Show phone steps";
+  if (remember) try { localStorage.setItem(DEVICE_KEY, phone ? "phone" : "computer"); } catch { /* ignore */ }
+}
+
+function exportUrl(id) {
+  return `https://www.strava.com/activities/${id}/export_original`;
+}
+
+function setStravaLink(value) {
+  const v = (value || "").trim();
   const m = /strava\.com\/activities\/(\d+)/.exec(v);
   const hint = $("#link-hint");
-  const btn = $("#strava-download"), gpx = $("#strava-gpx");
+  $("#link-ready").hidden = !m;
   if (m) {
     state.pendingStravaId = m[1];
-    btn.href = `https://www.strava.com/activities/${m[1]}/export_original`;
-    gpx.href = `https://www.strava.com/activities/${m[1]}/export_gpx`;
-    btn.removeAttribute("aria-disabled");
-    gpx.hidden = false;
-    hint.textContent = "Tap the button and the file downloads from Strava. Then do step 2.";
-  } else {
-    state.pendingStravaId = null;
-    btn.removeAttribute("href");
-    btn.setAttribute("aria-disabled", "true");
-    gpx.hidden = true;
-    hint.textContent = !v ? "" : /strava\.app\.link|strava\.com\/share/.test(v)
-      ? "That’s a share link from the Strava app. Open it in your browser (not the app), then copy the address that starts with strava.com/activities/…"
-      : "That doesn’t look like a Strava activity link (…strava.com/activities/123456789).";
+    $("#strava-download").href = exportUrl(m[1]);
+    $("#download-url").value = exportUrl(m[1]);
+    hint.textContent = "";
+    return true;
   }
+  state.pendingStravaId = null;
+  hint.textContent = !v ? "" : /strava\.app\.link|strava\.com\/share/.test(v)
+    ? "That’s a share link from the Strava app. Open Strava in the browser (button above), open the activity there and copy the address from the address bar."
+    : "That doesn’t look like a Strava activity link. It should look like strava.com/activities/123456789.";
+  return false;
+}
+
+async function pasteLink() {
+  let text = "";
+  try {
+    text = await navigator.clipboard.readText();
+  } catch {
+    $("#link-hint").textContent = "Couldn’t read the clipboard. Long-press the box next to the button and choose Paste.";
+    $("#strava-link").focus();
+    return;
+  }
+  $("#strava-link").value = text.trim();
+  if (setStravaLink(text) && document.body.classList.contains("phone")) $("#copy-download").focus();
+}
+
+async function copyDownloadLink() {
+  const url = $("#download-url").value;
+  try {
+    await navigator.clipboard.writeText(url);
+    toast("Copied. Now paste it into the address bar and open it.");
+  } catch {
+    const input = $("#download-url");
+    input.focus();
+    input.select();
+    toast("Select the link below and copy it.");
+  }
+  state.awayForFile = true;
+}
+
+/** Desktop Chrome/Edge can open the picker straight in Downloads. */
+async function chooseFile(e) {
+  // Native <input> handles it: phones, other browsers, and our own fallback click.
+  if (!window.showOpenFilePicker || document.body.classList.contains("phone") || e.target === $("#file-input")) return;
+  e.preventDefault();
+  try {
+    const handles = await window.showOpenFilePicker({
+      startIn: "downloads",
+      multiple: true,
+      types: [{ description: "Activity files", accept: { "application/octet-stream": [".fit", ".gpx", ".tcx", ".gz"] } }],
+    });
+    handleFiles(await Promise.all(handles.map((h) => h.getFile())));
+  } catch (err) {
+    if (err.name !== "AbortError") $("#file-input").click();
+  }
+}
+
+/** Coming back from Strava: point at step 2. */
+function onReturn() {
+  if (document.visibilityState !== "visible" || !state.awayForFile) return;
+  state.awayForFile = false;
+  if (location.hash && location.hash !== "#/") return;
+  $("#step-file").classList.add("attention");
+  $("#step-file").scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
 async function handleFiles(files) {
@@ -193,6 +271,11 @@ async function handleFiles(files) {
   status.hidden = !errors.length;
   status.textContent = errors.join("\n");
   status.classList.toggle("error", !!errors.length);
+  if (added) {
+    $("#step-file").classList.remove("attention");
+    $("#strava-link").value = "";
+    setStravaLink("");
+  }
   if (added === 1) go(`#/a/${encodeURIComponent(lastId)}`);
   else if (added > 1) { toast(`Added ${added} activities.`); go("#/"); }
 }
@@ -220,7 +303,6 @@ async function saveActivity(act, stravaId) {
   };
   await store.save(summary, act);
   state.summaries = sortByDate([...state.summaries.filter((s) => s.id !== id), summary]);
-  state.pendingStravaId = null;
   return summary;
 }
 
@@ -667,10 +749,16 @@ async function deleteAll() {
 // ================= handlers =================
 
 function wireHandlers() {
-  $("#strava-link").addEventListener("input", onStravaLinkInput);
-  $("#strava-download").addEventListener("click", (e) => {
-    if (!$("#strava-download").getAttribute("href")) { e.preventDefault(); $("#strava-link").focus(); }
-  });
+  setDeviceMode(detectPhone());
+  $("#switch-device").addEventListener("click", () => setDeviceMode(!document.body.classList.contains("phone"), true));
+  $("#strava-link").addEventListener("input", (e) => setStravaLink(e.target.value));
+  $("#paste-link").addEventListener("click", pasteLink);
+  $("#copy-download").addEventListener("click", copyDownloadLink);
+  $("#download-url").addEventListener("focus", (e) => e.target.select());
+  $$("[data-strava-open]").forEach((a) => a.addEventListener("click", () => (state.awayForFile = true)));
+  $("#strava-download").addEventListener("click", () => (state.awayForFile = true));
+  document.addEventListener("visibilitychange", onReturn);
+  $("#dropzone").addEventListener("click", chooseFile);
   $("#file-input").addEventListener("change", (e) => handleFiles(e.target.files));
   const drop = $("#dropzone");
   for (const ev of ["dragenter", "dragover"]) drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("over"); });
