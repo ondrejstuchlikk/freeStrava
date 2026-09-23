@@ -34,7 +34,8 @@ phone), tap "Connect with Strava", log in, and see their stats.
 - New apps have **athlete capacity 1** ("Single Player Mode"). The owner can
   self-upgrade to 10 in Strava's API settings; more than 10 needs Strava's review.
 - Scopes requested: `read,activity:read_all`.
-- Callback domain in the Strava app = `<github-username>.github.io`.
+- GitHub user `ondrejstuchlikk`; site = https://ondrejstuchlikk.github.io/freeStrava/.
+  Callback domain in the Strava app = `ondrejstuchlikk.github.io`.
   `localhost` is always allowed by Strava for local testing.
 - Strava brand guidelines: use "Connect with Strava" and "Powered by Strava"
   wording/assets; don't imply affiliation.
@@ -92,4 +93,4 @@ tests/                pure-JS tests, run with ./tests/run.sh (macOS JavaScriptCo
   http://localhost:8000/?demo (sample data) or http://localhost:8000/ (real
   login; add `http://localhost:8000` to the Worker's ALLOWED_ORIGINS).
 - User-facing text: plain, friendly, non-technical English.
-- Owner's machine has git, python3 and Homebrew; no node, gh or wrangler.
+- Owner's machine has git, python3, Homebrew and gh (GitHub CLI); no node or wrangler.
